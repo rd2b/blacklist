@@ -11,6 +11,8 @@ set -u
 whitelistdir="/etc/myipsets/whitelist.d"
 blacklistdir="/etc/myipsets/blacklist.d"
 
+. /etc/default/myblacklist
+
 mkdir -p "$whitelistdir"
 mkdir -p "$blacklistdir"
 
