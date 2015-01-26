@@ -11,19 +11,22 @@ set -u
 whitelistdir="/etc/myipsets/whitelist.d"
 blacklistdir="/etc/myipsets/blacklist.d"
 
+iptables="/sbin/iptables"
+ipset="/sbin/ipset"
+
 . /etc/default/myblacklist
 
 mkdir -p "$whitelistdir"
 mkdir -p "$blacklistdir"
 
-ipset destroy blacklist
-ipset flush blacklist
-ipset create blacklist hash:ip hashsize 4096
+$ipset destroy blacklist
+$ipset flush blacklist
+$ipset create blacklist hash:ip hashsize 4096
 
 for port in 22 80 443; do
-    iptables -I INPUT  -m set --match-set blacklist src -p TCP \
+    $iptables -I INPUT  -m set --match-set blacklist src -p TCP \
          --destination-port $port -j REJECT
-    iptables -I INPUT  -m set --match-set blacklist src -p TCP \
+    $iptables -I INPUT  -m set --match-set blacklist src -p TCP \
          --destination-port $port -j LOG --log-prefix '[REJECT]:'
 done
 
@@ -38,7 +41,7 @@ echo "$listip" > "$blacklistdir/base_30days.txt"
 
 for ip in  $(grep -h -v -f $whitelistdir/*.txt $blacklistdir/*.txt); do
     echo "black $ip"
-    ipset add blacklist $ip
+    $ipset add blacklist $ip
 done
 
 
