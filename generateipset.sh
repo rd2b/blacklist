@@ -40,8 +40,12 @@ echo "$listip" > "$blacklistdir/base_30days.txt"
 
 
 for ip in  $(grep -h -v -f $whitelistdir/*.txt $blacklistdir/*.txt); do
-    echo "black $ip"
     $ipset add blacklist $ip
 done
+
+count="$(grep -c -h -v -f $whitelistdir/*.txt $blacklistdir/*.txt)"
+
+echo "[Blacklist] $count IP bloquees"
+
 
 
