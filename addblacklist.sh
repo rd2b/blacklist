@@ -17,4 +17,4 @@ blacklistdir="/etc/myipsets/blacklist.d/"
 
 black="$blacklistdir/authfailed_$(date +%F).txt"
 
-grep Failed $authfile | grep -v -f "$whitelistdir/*.txt" | grep   -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b" |sort -u >> $black
+grep Failed $authfile | grep -v -f $whitelistdir/*.txt | grep   -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b" |sort -u >> $black
