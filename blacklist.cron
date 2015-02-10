@@ -1,0 +1,4 @@
+# Generation des blacklist
+00 12 * * *     root    /root/blacklist/addblacklist.sh
+
+03 13 * * *     root    /root/blacklist/generateipset.sh
