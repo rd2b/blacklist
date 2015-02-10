@@ -1,0 +1,6 @@
+workdir="/data/var/blacklist"                                                   
+                                                                                
+whitelistdir="$workdir/whitelist.d"                                             
+blacklistdir="$workdir/blacklist.d"                                             
+                                                                                
+ipset="/usr/sbin/ipset"   
