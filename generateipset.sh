@@ -14,6 +14,8 @@ blacklistdir="/etc/myipsets/blacklist.d"
 iptables="/sbin/iptables"
 ipset="/sbin/ipset"
 
+allowedports="22 80 443"
+
 . /etc/default/myblacklist
 
 mkdir -p "$whitelistdir"
@@ -30,14 +32,14 @@ $iptables -A INPUT -i lo -j ACCEPT
 
 $ipset create blacklist hash:ip hashsize 4096
 
-for port in 22 80 443; do
+for port in $allowedports; do
     $iptables -A INPUT  -m set --match-set blacklist src -p TCP \
          --destination-port $port -j REJECT
     $iptables -A INPUT  -m set --match-set blacklist src -p TCP \
          --destination-port $port -j LOG --log-prefix '[IPTABLES][BACKLIST]:'
 done
 
-for port in 22 80 443; do
+for port in $allowedports; do
     $iptables -A INPUT -i eth0 -p tcp --dport $port -j ACCEPT
 done
 
