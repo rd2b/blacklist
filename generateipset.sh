@@ -31,10 +31,10 @@ $iptables -A INPUT -i lo -j ACCEPT
 $ipset create blacklist hash:ip hashsize 4096
 
 for port in 22 80 443; do
-    $iptables -I INPUT  -m set --match-set blacklist src -p TCP \
+    $iptables -A INPUT  -m set --match-set blacklist src -p TCP \
          --destination-port $port -j REJECT
-    $iptables -I INPUT  -m set --match-set blacklist src -p TCP \
-         --destination-port $port -j LOG --log-prefix '[REJECT]:'
+    $iptables -A INPUT  -m set --match-set blacklist src -p TCP \
+         --destination-port $port -j LOG --log-prefix '[IPTABLES][BACKLIST]:'
 done
 
 for port in 22 80 443; do
@@ -54,9 +54,11 @@ count="$(grep -c -h -v -f $whitelistdir/*.txt $blacklistdir/*.txt)"
 echo "[Blacklist] $count IP bloquees"
 
 # bloquer tout le reste
-$iptables -A INPUT -i eth0 -m state --state ESTABLISHED,RELATED -j ACCEPT  
-$iptables -P INPUT -m limit --limit 2/min -j LOG --log-prefix '[REJECT]:'  
-$iptables -P INPUT -j DROP
+$iptables -A INPUT -p icmp -j ACCEPT
+
+$iptables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT  
+$iptables -A INPUT -m limit --limit 2/min -j LOG --log-prefix '[IPTABLES][FORBIDDENPORT]:'
+$iptables -A INPUT -j DROP
 
 
 
