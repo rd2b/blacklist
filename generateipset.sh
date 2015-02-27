@@ -19,8 +19,15 @@ ipset="/sbin/ipset"
 mkdir -p "$whitelistdir"
 mkdir -p "$blacklistdir"
 
+
 $ipset destroy blacklist
-$ipset flush blacklist
+
+$iptables -F
+$iptables -X
+$iptables -F
+
+$iptables -A INPUT -i lo -j ACCEPT
+
 $ipset create blacklist hash:ip hashsize 4096
 
 for port in 22 80 443; do
@@ -30,13 +37,12 @@ for port in 22 80 443; do
          --destination-port $port -j LOG --log-prefix '[REJECT]:'
 done
 
-
+for port in 22 80 443; do
+    $iptables -A INPUT -i eth0 -p tcp --dport $port -j ACCEPT
+done
 
 listip=$(curl -s http://www.openbl.org/lists/base_30days.txt.gz | gunzip | grep -v "^#")
-
-
 echo "$listip" > "$blacklistdir/base_30days.txt"
-
 
 
 for ip in  $(grep -h -v -f $whitelistdir/*.txt $blacklistdir/*.txt); do
@@ -46,6 +52,11 @@ done
 count="$(grep -c -h -v -f $whitelistdir/*.txt $blacklistdir/*.txt)"
 
 echo "[Blacklist] $count IP bloquees"
+
+# bloquer tout le reste
+$iptables -A INPUT -i eth0 -m state --state ESTABLISHED,RELATED -j ACCEPT  
+$iptables -P INPUT -m limit --limit 2/min -j LOG --log-prefix '[REJECT]:'  
+$iptables -P INPUT -j DROP
 
 
 
